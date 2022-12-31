@@ -19,7 +19,33 @@
       </form>
     </div>
     <main>
-        {{ keyword }}
+      {% if books %}
+          <!--  -->
+          <div style="text-align: center">
+            <h3 style="color: gray">{{books|length}}개 데이터 수집..</h3>
+          </div>
+          <section>
+            {% for book in books %}
+            <div>
+              <img src="{{book.image}}" width="150px" height="200px" />
+              <p>
+                {% if book.publisher|length > 10 %}
+                <!--  -->
+                {{book.publisher[:10]}}...
+                <!--  -->
+                {% else %} {{book.publisher}} {% endif %}
+              </p>
+              <p>{{book.price}} 원</p>
+            </div>
+            {% endfor %}
+          </section>
+
+          <hr />
+          {{books}}
+          <!--  -->
+          {% else %}
+          <div style="text-align: center"><h3 style="color: gray">Please Input Keyword...</h3></div>
+          {% endif %}
     </main>
 </body>
 </html>

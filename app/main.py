@@ -24,9 +24,19 @@ async def root(request: Request):
 
 @app.get("/search", response_class=HTMLResponse)
 async def search(request: Request, q: str):
-    # 쿼리에서 검색어 추출
+
     keyword = q
-    # 데이터 수집
+    if not keyword:
+        context = {"request": request, "title": "콜렉터 북북이"}
+
+    if await mongodb.engine.find_one(Book, Book.keyword == keyword):
+        books = await mongodb.engine.find(Book, Book.keyword == keyword)
+        return_data = {"request": request,
+                       "title": "콜렉터 북북이",
+                       "books": books
+                       }
+        return templates.TemplateResponse("./index.html", return_data)
+
     naver_book_sraper = NaverBookScraper()
     books = await naver_book_sraper.search(keyword, 10)
     book_models = []
@@ -40,10 +50,12 @@ async def search(request: Request, q: str):
         book_models.append(book_model)
     await mongodb.engine.save_all(book_models)
 
-    return templates.TemplateResponse("./index.html",
-                                      {"request": request,
-                                       "title": "콜렉터 북북이",
-                                       "keyword": q})
+    return_data = {"request": request,
+                   "title": "콜렉터 북북이",
+                   "books": book_models
+                   }
+
+    return templates.TemplateResponse("./index.html", return_data)
 
 
 @app.on_event("startup")

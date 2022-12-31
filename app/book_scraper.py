@@ -1,7 +1,7 @@
 import asyncio
 
 import aiohttp
-from config import get_secret
+from app.config import get_secret
 
 
 class NaverBookScraper:
@@ -32,8 +32,13 @@ class NaverBookScraper:
             all_data = await asyncio.gather(
                 *[NaverBookScraper.fetch(session, api["url"], api["headers"]) for api in apis]
             )
-            print(all_data)
-            print(len(all_data))
+            result = []
+            for data in all_data:
+                if data is not None:
+                    for book in data:
+                        result.append(book)
+
+            return result
 
     def run(self, keyword, total_page):
         return asyncio.run(self.search(keyword, total_page))
@@ -42,4 +47,4 @@ class NaverBookScraper:
 if __name__ == "__main__":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     scraper = NaverBookScraper()
-    scraper.run("파이썬", 1)
+    print(scraper.run("파이썬", 3))
